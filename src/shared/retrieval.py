@@ -97,8 +97,8 @@ def make_chroma_retriever(
 ) -> Generator[VectorStoreRetriever, None, None]:
     """Configure this agent to connect to a ChromaDB instance."""
     import chromadb
+    from chromadb.config import DEFAULT_DATABASE, DEFAULT_TENANT, Settings
     from langchain_chroma import Chroma
-    from chromadb.config import DEFAULT_TENANT, DEFAULT_DATABASE, Settings
 
     client = chromadb.HttpClient(
         host=os.environ["CHROMA_HOST"],

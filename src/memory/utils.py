@@ -2,8 +2,6 @@
 
 from typing import Literal, Sequence
 
-from langchain.chat_models import init_chat_model
-from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import BaseMessage, merge_message_runs
 
 
@@ -33,6 +31,7 @@ def create_memory_function(
     custom_instructions: str = "",
     kind: Literal["patch", "insert"] = "patch",
 ):
+    """Create a memory function."""
     return {
         "name": model.__name__,
         "description": description or model.__doc__ or "",

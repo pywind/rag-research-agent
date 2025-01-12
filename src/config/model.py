@@ -1,5 +1,8 @@
+"""Model for the configuration of the memory graph."""
+
 from datetime import datetime
 from typing import Literal, Optional
+
 from pydantic import BaseModel, Field, field_validator
 
 
@@ -9,12 +12,15 @@ class Router(BaseModel):
     logic: str
     type: Literal["more-info", "langchain", "general"]
 
+
 class Plan(BaseModel):
     """Generate research plan."""
 
     steps: list[str]
 
+
 class Response(BaseModel):
+    """Response containing generated search queries."""
     queries: list[str]
 
 
@@ -42,20 +48,25 @@ class User(BaseModel):
     )
 
     # Add validators for all list fields to ensure unique values
-    @field_validator('skills', 'interests', 'conversation_preferences', 'topics_discussed', 'other_preferences', 'relationships')
+    @field_validator(
+        "skills",
+        "interests",
+        "conversation_preferences",
+        "topics_discussed",
+        "other_preferences",
+        "relationships",
+    )
     @classmethod
     def ensure_unique_items(cls, v: Optional[list[str]]) -> Optional[list[str]]:
+        """Ensure that the list contains unique items."""
         if v is None:
             return v
         return list(dict.fromkeys(v))  # Preserves order while removing duplicates
 
 
 class Note(BaseModel):
-    """
-    Save notable memories the user has shared with you for later recall. 
-    Model for storing contextual notes and memories about user interactions.
-    """
-
+    """Save notable memories the user has shared with you for later recall and store contextual notes and memories about user interactions."""
+    
     context: str = Field(
         description="The situation or circumstance where this memory may be relevant. "
         "Include any caveats or conditions that contextualize the memory. "

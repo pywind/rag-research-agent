@@ -7,6 +7,7 @@ which is responsible for generating search queries and retrieving relevant docum
 from typing import cast
 
 from langchain_core.documents import Document
+from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_core.runnables import RunnableConfig
 from langgraph.graph import END, START, StateGraph
 from langgraph.types import Send
@@ -32,14 +33,11 @@ async def generate_queries(
     Returns:
         dict[str, list[str]]: A dictionary with a 'queries' key containing the list of generated search queries.
     """
-
-
-
     configuration = AgentConfiguration.from_runnable_config(config)
     model = load_chat_model(configuration.query_model).with_structured_output(Response)
     messages = [
-        {"role": "system", "content": configuration.generate_queries_system_prompt},
-        {"role": "human", "content": state.question},
+        SystemMessage(content=configuration.generate_queries_system_prompt),
+        HumanMessage(content=state.question),
     ]
     response = cast(Response, await model.ainvoke(messages))
     return {"queries": response.queries}

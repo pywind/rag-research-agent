@@ -8,16 +8,14 @@ import uuid
 from dataclasses import asdict
 
 from langchain_core.runnables import RunnableConfig
-from langgraph.graph import StateGraph
+from langgraph.graph import START, StateGraph
 from langgraph.store.base import BaseStore
 from langgraph.types import Send
-
-
 from trustcall import create_extractor
-from langgraph.graph import END, START, StateGraph
-from src.shared.utils import load_chat_model
+
 from src.memory import configuration, utils
 from src.memory.state import ProcessorState, State
+from src.shared.utils import load_chat_model
 
 logger = logging.getLogger("memory")
 
