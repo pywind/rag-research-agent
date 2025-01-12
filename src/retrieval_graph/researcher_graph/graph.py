@@ -4,17 +4,18 @@ This module defines the core structure and functionality of the researcher graph
 which is responsible for generating search queries and retrieving relevant documents.
 """
 
-from typing import TypedDict, cast
+from typing import cast
 
 from langchain_core.documents import Document
 from langchain_core.runnables import RunnableConfig
 from langgraph.graph import END, START, StateGraph
 from langgraph.types import Send
 
-from retrieval_graph.configuration import AgentConfiguration
-from retrieval_graph.researcher_graph.state import QueryState, ResearcherState
-from shared import retrieval
-from shared.utils import load_chat_model
+from src.config.model import Response
+from src.retrieval_graph.configuration import AgentConfiguration
+from src.retrieval_graph.researcher_graph.state import QueryState, ResearcherState
+from src.shared import retrieval
+from src.shared.utils import load_chat_model
 
 
 async def generate_queries(
@@ -32,8 +33,7 @@ async def generate_queries(
         dict[str, list[str]]: A dictionary with a 'queries' key containing the list of generated search queries.
     """
 
-    class Response(TypedDict):
-        queries: list[str]
+
 
     configuration = AgentConfiguration.from_runnable_config(config)
     model = load_chat_model(configuration.query_model).with_structured_output(Response)
@@ -42,7 +42,7 @@ async def generate_queries(
         {"role": "human", "content": state.question},
     ]
     response = cast(Response, await model.ainvoke(messages))
-    return {"queries": response["queries"]}
+    return {"queries": response.queries}
 
 
 async def retrieve_documents(

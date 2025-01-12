@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from shared.configuration import BaseConfiguration
+from src.shared.configuration import BaseConfiguration
 
 # This file contains sample documents to index, based on the following LangChain and LangGraph documentation pages:
 # - https://python.langchain.com/v0.3/docs/concepts/

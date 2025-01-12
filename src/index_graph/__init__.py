@@ -1,5 +1,5 @@
 """Index Graph Module."""
 
-from index_graph.graph import graph
 
+from src.index_graph.graph import graph
 __all__ = ["graph"]

@@ -27,19 +27,28 @@ class BaseConfiguration:
     )
 
     retriever_provider: Annotated[
-        Literal["elastic-local", "elastic", "pinecone", "mongodb"],
+        Literal["elastic-local", "elastic", "pinecone", "mongodb", "redis", "chroma"],
         {"__template_metadata__": {"kind": "retriever"}},
     ] = field(
-        default="elastic-local",
+        default="redis",
         metadata={
-            "description": "The vector store provider to use for retrieval. Options are 'elastic', 'pinecone', or 'mongodb'."
+            "description": "The vector store provider to use for retrieval. Options are 'elastic', 'pinecone', 'redis', 'chromadb', or 'chroma'."
         },
     )
 
     search_kwargs: dict[str, Any] = field(
         default_factory=dict,
         metadata={
-            "description": "Additional keyword arguments to pass to the search function of the retriever."
+            "description": """Additional keyword arguments to pass to the search function of the retriever.                search_kwargs (Optional[Dict]): Keyword arguments to pass to the
+                    Can include things like:
+                        k: Amount of documents to return (Default: 4)
+                        score_threshold: Minimum relevance threshold
+                            for similarity_score_threshold
+                        fetch_k: Amount of documents to pass to MMR algorithm
+                            (Default: 20)
+                        lambda_mult: Diversity of results returned by MMR;
+                            1 for minimum diversity and 0 for maximum. (Default: 0.5)
+                        filter: Filter by document metadata"""
         },
     )
 

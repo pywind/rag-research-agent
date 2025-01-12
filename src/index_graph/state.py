@@ -5,7 +5,7 @@ from typing import Annotated
 
 from langchain_core.documents import Document
 
-from shared.state import reduce_docs
+from src.shared.state import reduce_docs
 
 
 # The index state defines the simple IO for the single-node index graph

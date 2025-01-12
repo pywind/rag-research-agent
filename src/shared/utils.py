@@ -10,6 +10,7 @@ from typing import Optional
 from langchain.chat_models import init_chat_model
 from langchain_core.documents import Document
 from langchain_core.language_models import BaseChatModel
+from langgraph.store.base import Item
 
 
 def _format_doc(doc: Document) -> str:
@@ -61,6 +62,37 @@ def format_docs(docs: Optional[list[Document]]) -> str:
     return f"""<documents>
 {formatted}
 </documents>"""
+
+
+def _format_memory_value(value: dict) -> str:
+    """Format a memory value dictionary into a readable bullet-point string."""
+    bullet_points = []
+    for key, val in value.items():
+        # Skip empty values (None, empty strings, empty lists, etc.)
+        if val and not (isinstance(val, (str, list)) and len(val) == 0):
+            formatted_val = val if isinstance(val, str) else ", ".join(map(str, val)) if isinstance(val, list) else str(val)
+            readable_key = key.replace('_', ' ').title()
+            bullet_points.append(f"  - {readable_key}: {formatted_val}")
+    return "\n".join(bullet_points) if bullet_points else "No details available"
+
+
+def format_memories(memories: Optional[list[Item]]) -> str:
+    """Format the user's memories."""
+    if not memories:
+        return ""
+    formatted_memories = "\n".join(
+        f"• Memory:\n{_format_memory_value(m.value)}\n  Last updated: {m.updated_at}" 
+        for m in memories
+    )
+    return f"""
+
+## Memories
+
+You have noted the following memorable events from previous interactions with the user.
+<memories>
+{formatted_memories}
+</memories>
+"""
 
 
 def load_chat_model(fully_specified_name: str) -> BaseChatModel:

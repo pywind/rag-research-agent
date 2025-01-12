@@ -26,6 +26,7 @@ Your boss has determined that the user is asking a general question, not one rel
 {logic}
 </logic>
 
+{user_info}
 Respond to the user. Politely decline to answer and tell them you can only answer questions about LangChain-related topics, and that if their question is about LangChain they should clarify how it is.\
 Be nice to them though - they are still a user!"""
 
@@ -89,6 +90,6 @@ bank, not part of the conversation with the user.
 # Researcher graph
 
 GENERATE_QUERIES_SYSTEM_PROMPT = """\
-Generate 3 search queries to search for to answer the user's question. \
+Generate 1 search queries to search for to answer the user's question. \
 These search queries should be diverse in nature - do not generate \
 repetitive ones."""

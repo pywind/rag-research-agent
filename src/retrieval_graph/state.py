@@ -5,13 +5,14 @@ definitions for agent state, input state, and router classification schema.
 """
 
 from dataclasses import dataclass, field
-from typing import Annotated, Literal, TypedDict
+from typing import Annotated
 
 from langchain_core.documents import Document
 from langchain_core.messages import AnyMessage
 from langgraph.graph import add_messages
 
-from shared.state import reduce_docs
+from src.config.model import Router
+from src.shared.state import reduce_docs
 
 
 # Optional, the InputState is a restricted version of the State that is used to
@@ -57,16 +58,7 @@ class InputState:
         If a message in `right` has the same ID as a message in `left`, the
         message from `right` will replace the message from `left`."""
 
-
-class Router(TypedDict):
-    """Classify user query."""
-
-    logic: str
-    type: Literal["more-info", "langchain", "general"]
-
-
 # This is the primary state of your agent, where you can store any information
-
 
 @dataclass(kw_only=True)
 class AgentState(InputState):

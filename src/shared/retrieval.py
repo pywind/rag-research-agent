@@ -12,7 +12,7 @@ from langchain_core.embeddings import Embeddings
 from langchain_core.runnables import RunnableConfig
 from langchain_core.vectorstores import VectorStoreRetriever
 
-from shared.configuration import BaseConfiguration
+from src.shared.configuration import BaseConfiguration
 
 ## Encoder constructors
 
@@ -92,6 +92,49 @@ def make_mongodb_retriever(
 
 
 @contextmanager
+def make_chroma_retriever(
+    configuration: BaseConfiguration, embedding_model: Embeddings
+) -> Generator[VectorStoreRetriever, None, None]:
+    """Configure this agent to connect to a ChromaDB instance."""
+    import chromadb
+    from langchain_chroma import Chroma
+    from chromadb.config import DEFAULT_TENANT, DEFAULT_DATABASE, Settings
+
+    client = chromadb.HttpClient(
+        host=os.environ["CHROMA_HOST"],
+        port=os.environ["CHROMA_PORT"],
+        ssl=False,
+        headers=None,
+        settings=Settings(),
+        tenant=DEFAULT_TENANT,
+        database=DEFAULT_DATABASE,
+    )
+    vstore = Chroma(
+        client=client,
+        collection_name=os.environ["CHROMA_COLLECTION_NAME"],
+        embedding_function=embedding_model,
+    )
+    yield vstore.as_retriever(search_kwargs=configuration.search_kwargs)
+
+
+@contextmanager
+def make_redis_retriever(
+    configuration: BaseConfiguration, embedding_model: Embeddings
+) -> Generator[VectorStoreRetriever, None, None]:
+    """Configure this agent to connect to a Redis vector store."""
+    from langchain_redis import RedisConfig, RedisVectorStore
+    config = RedisConfig(
+        index_name=os.environ["REDIS_INDEX_NAME"],
+        redis_url=os.environ["REDIS_URL"],
+    )
+    vstore = RedisVectorStore(
+        config=config,
+        embeddings=embedding_model,
+    )
+    yield vstore.as_retriever(search_kwargs=configuration.search_kwargs)
+
+
+@contextmanager
 def make_retriever(
     config: RunnableConfig,
 ) -> Generator[VectorStoreRetriever, None, None]:
@@ -109,6 +152,14 @@ def make_retriever(
 
         case "mongodb":
             with make_mongodb_retriever(configuration, embedding_model) as retriever:
+                yield retriever
+
+        case "chroma":
+            with make_chroma_retriever(configuration, embedding_model) as retriever:
+                yield retriever
+
+        case "redis":
+            with make_redis_retriever(configuration, embedding_model) as retriever:
                 yield retriever
 
         case _:

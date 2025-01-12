@@ -1,15 +1,16 @@
 """This "graph" simply exposes an endpoint for a user to upload docs to be indexed."""
 
 import json
+import logging as log
 from typing import Optional
 
 from langchain_core.runnables import RunnableConfig
 from langgraph.graph import END, START, StateGraph
 
-from index_graph.configuration import IndexConfiguration
-from index_graph.state import IndexState
-from shared import retrieval
-from shared.state import reduce_docs
+from src.index_graph.configuration import IndexConfiguration
+from src.index_graph.state import IndexState
+from src.shared import retrieval
+from src.shared.state import reduce_docs
 
 
 async def index_docs(
@@ -34,6 +35,7 @@ async def index_docs(
     configuration = IndexConfiguration.from_runnable_config(config)
     docs = state.docs
     if not docs:
+        log.info("Indexing docs file !")
         with open(configuration.docs_file) as f:
             serialized_docs = json.load(f)
             docs = reduce_docs([], serialized_docs)
