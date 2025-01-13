@@ -1,16 +1,10 @@
-"""Shared utility functions used in the project.
-
-Functions:
-    format_docs: Convert documents to an xml-formatted string.
-    load_chat_model: Load a chat model from a model name.
-"""
+"""Shared utility functions used in the project."""
 
 from typing import Optional
 
 from langchain.chat_models import init_chat_model
 from langchain_core.documents import Document
 from langchain_core.language_models import BaseChatModel
-from langgraph.store.base import Item
 
 
 def _format_doc(doc: Document) -> str:
@@ -70,18 +64,24 @@ def _format_memory_value(value: dict) -> str:
     for key, val in value.items():
         # Skip empty values (None, empty strings, empty lists, etc.)
         if val and not (isinstance(val, (str, list)) and len(val) == 0):
-            formatted_val = val if isinstance(val, str) else ", ".join(map(str, val)) if isinstance(val, list) else str(val)
-            readable_key = key.replace('_', ' ').title()
+            formatted_val = (
+                val
+                if isinstance(val, str)
+                else ", ".join(map(str, val))
+                if isinstance(val, list)
+                else str(val)
+            )
+            readable_key = key.replace("_", " ").title()
             bullet_points.append(f"  - {readable_key}: {formatted_val}")
     return "\n".join(bullet_points) if bullet_points else "No details available"
 
 
-def format_memories(memories: Optional[list[Item]]) -> str:
+def format_memories(memories) -> str:
     """Format the user's memories."""
     if not memories:
         return ""
     formatted_memories = "\n".join(
-        f"• Memory:\n{_format_memory_value(m.value)}\n  Last updated: {m.updated_at}" 
+        f"• Memory:\n{_format_memory_value(m.value)}\n  Last updated: {m.updated_at}"
         for m in memories
     )
     return f"""

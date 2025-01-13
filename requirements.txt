@@ -1,0 +1,28 @@
+# This file may be used to create an environment using:
+# $ conda create --name <env> --file <this file>
+langchain==0.3.13
+langchain-community==0.3.13
+langchain-core==0.3.28
+langchain-openai==0.2.14
+langchain-redis==0.1.1
+langchain-text-splitters==0.3.4
+langgraph==0.2.60
+langgraph-api==0.0.15
+langgraph-checkpoint==2.0.9
+langgraph-checkpoint-postgres==2.0.10
+langgraph-cli==0.1.65
+langgraph-sdk==0.1.48
+numpy==1.26.4
+openai==1.58.1
+pydantic==2.10.4
+pydantic-core==2.27.2
+pydantic-settings==2.7.0
+python-dotenv==1.0.1
+pytz==2024.2
+redis==5.2.1
+redisvl==0.3.7
+requests==2.32.3
+tenacity==8.5.0
+tiktoken==0.8.0
+trustcall==0.0.26
+typing-extensions==4.12.2

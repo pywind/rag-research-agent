@@ -21,6 +21,7 @@ class Plan(BaseModel):
 
 class Response(BaseModel):
     """Response containing generated search queries."""
+
     queries: list[str]
 
 
@@ -66,7 +67,7 @@ class User(BaseModel):
 
 class Note(BaseModel):
     """Save notable memories the user has shared with you for later recall and store contextual notes and memories about user interactions."""
-    
+
     context: str = Field(
         description="The situation or circumstance where this memory may be relevant. "
         "Include any caveats or conditions that contextualize the memory. "

@@ -6,4 +6,4 @@ from .shared import (
     retrieval,  # Import shared modules here
 )
 
-__all__ = ["retrieval", "configuration"] 
+__all__ = ["retrieval", "configuration"]

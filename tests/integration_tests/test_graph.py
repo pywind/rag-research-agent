@@ -10,10 +10,10 @@ from langchain_core.vectorstores import VectorStore
 from langchain_redis import RedisConfig, RedisVectorStore
 from langsmith import expect, unit
 
-from index_graph import graph as index_graph
-from retrieval_graph import graph
-from shared.configuration import BaseConfiguration
-from shared.retrieval import make_text_encoder
+from src.index_graph import graph as index_graph
+from src.retrieval_graph import graph
+from src.shared.configuration import BaseConfiguration
+from src.shared.retrieval import make_text_encoder
 
 load_dotenv(override=True)
 
@@ -23,7 +23,6 @@ def make_elastic_vectorstore(
     configuration: BaseConfiguration,
 ) -> Generator[VectorStore, None, None]:
     """Configure this agent to connect to a specific elastic index."""
-
 
     embedding_model = make_text_encoder(configuration.embedding_model)
     config = RedisConfig(

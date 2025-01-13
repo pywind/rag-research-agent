@@ -27,8 +27,7 @@ def make_text_encoder(model: str) -> Embeddings:
             return OpenAIEmbeddings(model=model)
         case "cohere":
             from langchain_cohere import CohereEmbeddings
-
-            return CohereEmbeddings(model=model)  # type: ignore
+            return CohereEmbeddings(model=model)
         case _:
             raise ValueError(f"Unsupported embedding provider: {provider}")
 
@@ -53,14 +52,14 @@ def make_elastic_retriever(
     else:
         connection_options = {"es_api_key": os.environ["ELASTICSEARCH_API_KEY"]}
 
-    vstore = ElasticsearchStore(
+    vector_store = ElasticsearchStore(
         **connection_options,  # type: ignore
         es_url=os.environ["ELASTICSEARCH_URL"],
         index_name="langchain_index",
         embedding=embedding_model,
     )
 
-    yield vstore.as_retriever(search_kwargs=configuration.search_kwargs)
+    yield vector_store.as_retriever(search_kwargs=configuration.search_kwargs)
 
 
 @contextmanager
@@ -70,10 +69,10 @@ def make_pinecone_retriever(
     """Configure this agent to connect to a specific pinecone index."""
     from langchain_pinecone import PineconeVectorStore
 
-    vstore = PineconeVectorStore.from_existing_index(
+    vector_store = PineconeVectorStore.from_existing_index(
         os.environ["PINECONE_INDEX_NAME"], embedding=embedding_model
     )
-    yield vstore.as_retriever(search_kwargs=configuration.search_kwargs)
+    yield vector_store.as_retriever(search_kwargs=configuration.search_kwargs)
 
 
 @contextmanager
@@ -83,12 +82,12 @@ def make_mongodb_retriever(
     """Configure this agent to connect to a specific MongoDB Atlas index & namespaces."""
     from langchain_mongodb.vectorstores import MongoDBAtlasVectorSearch
 
-    vstore = MongoDBAtlasVectorSearch.from_connection_string(
+    vector_store = MongoDBAtlasVectorSearch.from_connection_string(
         os.environ["MONGODB_URI"],
         namespace="langgraph_retrieval_agent.default",
         embedding=embedding_model,
     )
-    yield vstore.as_retriever(search_kwargs=configuration.search_kwargs)
+    yield vector_store.as_retriever(search_kwargs=configuration.search_kwargs)
 
 
 @contextmanager
@@ -96,9 +95,13 @@ def make_chroma_retriever(
     configuration: BaseConfiguration, embedding_model: Embeddings
 ) -> Generator[VectorStoreRetriever, None, None]:
     """Configure this agent to connect to a ChromaDB instance."""
-    import chromadb
-    from chromadb.config import DEFAULT_DATABASE, DEFAULT_TENANT, Settings
-    from langchain_chroma import Chroma
+    import chromadb  # type: ignore
+    from chromadb.config import (  # type: ignore
+        DEFAULT_DATABASE,
+        DEFAULT_TENANT,
+        Settings,
+    )
+    from langchain_chroma import Chroma  # type: ignore
 
     client = chromadb.HttpClient(
         host=os.environ["CHROMA_HOST"],
@@ -109,12 +112,12 @@ def make_chroma_retriever(
         tenant=DEFAULT_TENANT,
         database=DEFAULT_DATABASE,
     )
-    vstore = Chroma(
+    vector_store = Chroma(
         client=client,
         collection_name=os.environ["CHROMA_COLLECTION_NAME"],
         embedding_function=embedding_model,
     )
-    yield vstore.as_retriever(search_kwargs=configuration.search_kwargs)
+    yield vector_store.as_retriever(search_kwargs=configuration.search_kwargs)
 
 
 @contextmanager
@@ -123,15 +126,16 @@ def make_redis_retriever(
 ) -> Generator[VectorStoreRetriever, None, None]:
     """Configure this agent to connect to a Redis vector store."""
     from langchain_redis import RedisConfig, RedisVectorStore
+
     config = RedisConfig(
         index_name=os.environ["REDIS_INDEX_NAME"],
         redis_url=os.environ["REDIS_URL"],
     )
-    vstore = RedisVectorStore(
+    vector_store = RedisVectorStore(
         config=config,
         embeddings=embedding_model,
     )
-    yield vstore.as_retriever(search_kwargs=configuration.search_kwargs)
+    yield vector_store.as_retriever(search_kwargs=configuration.search_kwargs)
 
 
 @contextmanager

@@ -15,10 +15,10 @@ from langgraph.graph import END, START, StateGraph
 from langgraph.store.base import BaseStore
 from langgraph_sdk import get_client
 
-from src.config.model import Plan
+from src.config.model import Plan, Router
 from src.retrieval_graph.configuration import AgentConfiguration
 from src.retrieval_graph.researcher_graph.graph import graph as researcher_graph
-from src.retrieval_graph.state import AgentState, InputState, Router
+from src.retrieval_graph.state import AgentState, InputState
 from src.shared.utils import format_docs, format_memories, load_chat_model
 
 logger = logging.getLogger("retrieval_graph")
@@ -120,7 +120,9 @@ async def respond_to_general_query(
     memories = format_memories(items)
     logger.info(f"Memories: {memories}")
     model = load_chat_model(configuration.query_model)
-    system_prompt = configuration.general_system_prompt.format(logic=state.router.logic, user_info=memories)
+    system_prompt = configuration.general_system_prompt.format(
+        logic=state.router.logic, user_info=memories
+    )
     messages = [SystemMessage(content=system_prompt)] + state.messages
     response = await model.ainvoke(messages)
     return {"messages": [response]}
@@ -187,7 +189,9 @@ def check_finished(state: AgentState) -> Literal["respond", "conduct_research"]:
 
 
 async def respond(
-    state: AgentState, *, config: RunnableConfig,
+    state: AgentState,
+    *,
+    config: RunnableConfig,
 ) -> dict[str, list[BaseMessage]]:
     """Generate a final response to the user's query based on the conducted research.
 
@@ -241,7 +245,7 @@ async def schedule_memories(state: AgentState, config: RunnableConfig) -> None:
 builder = StateGraph(AgentState, input=InputState, config_schema=AgentConfiguration)
 builder.add_node(analyze_and_route_query)
 builder.add_node(ask_for_more_info)
-builder.add_node(respond_to_general_query)
+builder.add_node(respond_to_general_query) # type: ignore
 builder.add_node(conduct_research)
 builder.add_node(create_research_plan)
 builder.add_node(respond)

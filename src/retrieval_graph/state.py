@@ -58,7 +58,9 @@ class InputState:
         If a message in `right` has the same ID as a message in `left`, the
         message from `right` will replace the message from `left`."""
 
+
 # This is the primary state of your agent, where you can store any information
+
 
 @dataclass(kw_only=True)
 class AgentState(InputState):
