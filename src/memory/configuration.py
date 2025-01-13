@@ -27,9 +27,7 @@ class MemoryConfig:
     system_prompt: str = ""
     """The system prompt to use for the memory assistant."""
     update_mode: Literal["patch", "insert"] = field(default="patch")
-    """Whether to continuously patch the memory, or treat each new
-
-    generation as a new memory.
+    """Whether to continuously patch the memory, or treat each new generation as a new memory.
 
     Patching is useful for maintaining a structured profile or core list
     of memories. Inserting is useful for maintaining all interactions and

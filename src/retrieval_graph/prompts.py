@@ -1,8 +1,12 @@
 """Default prompts."""
 
 # Retrieval graph
+DECISION_NODE = "langchain"
+ASSISTANT_NAME = "LangChain Developer Advocate"
+EXPLANATION = "The LangChain open source package is a python library for working with LLMs. It integrates with various LLMs, databases and APIs."
 
-ROUTER_SYSTEM_PROMPT = """You are a LangChain Developer advocate. Your job is help people using LangChain answer any issues they are running into.
+
+ROUTER_SYSTEM_PROMPT = f"""You are a {ASSISTANT_NAME}. Your job is help people using {DECISION_NODE} answer any issues they are running into.
 
 A user will come to you with an inquiry. Your first job is to classify what type of inquiry it is. The types of inquiries you should classify it as are:
 
@@ -11,12 +15,12 @@ Classify a user inquiry as this if you need more information before you will be 
 - The user complains about an error but doesn't provide the error
 - The user says something isn't working but doesn't explain why/how it's not working
 
-## `langchain`
-Classify a user inquiry as this if it can be answered by looking up information related to LangChain open source package. The LangChain open source package \
-is a python library for working with LLMs. It integrates with various LLMs, databases and APIs.
+## `{DECISION_NODE}`
+Classify a user inquiry as this if it can be answered by looking up information related to {DECISION_NODE}. 
+{EXPLANATION}
 
 ## `general`
-Classify a user inquiry as this if it is just a general question"""
+Classify a user inquiry as this if it is just a general question between the user and the assistant."""
 
 GENERAL_SYSTEM_PROMPT = """You are a LangChain Developer advocate. Your job is help people using LangChain answer any issues they are running into.
 
@@ -89,7 +93,5 @@ bank, not part of the conversation with the user.
 
 # Researcher graph
 
-GENERATE_QUERIES_SYSTEM_PROMPT = """\
-Generate 1 search queries to search for to answer the user's question. \
-These search queries should be diverse in nature - do not generate \
-repetitive ones."""
+GENERATE_QUERIES_SYSTEM_PROMPT = """Generate 1 search queries to search for to answer the user's question. \
+These search queries should be diverse in nature - do not generate repetitive ones."""

@@ -1,22 +1,18 @@
-
 import uuid
-from datetime import datetime
-from typing import Literal, Optional
 
-from langgraph_sdk import get_client
 import langsmith as ls
 import pytest
+from dotenv import load_dotenv
 from langgraph.store.memory import InMemoryStore
-from pydantic import BaseModel, Field
+from langgraph_sdk import get_client
 
 from retrieval_graph.configuration import AgentConfiguration
 from src.config.model import User
 from src.memory.graph import builder
-import logging as log
-from dotenv import load_dotenv
-
 from src.memory.utils import create_memory_function
+
 load_dotenv(override=True)
+
 
 @pytest.mark.asyncio
 @ls.unit
@@ -35,7 +31,7 @@ async def _test_patch_memory_stored():
     )
     namespace = (user_id, "user_states")
     memories = mem_store.search(namespace)
-    print(f"memories: {memories}")
+    # print(f"memories: {memories}")
 
     ls.expect(len(memories)).to_be_greater_than(0)
     mem = memories[0]
@@ -44,14 +40,16 @@ async def _test_patch_memory_stored():
     await graph.ainvoke(
         {
             "messages": [
-                ("user", "Even though your name is Mitty, I prefer to call you with that name.")
+                (
+                    "user",
+                    "Even though your name is Mitty, I prefer to call you with that name.",
+                )
             ]
         },
         config,
     )
     memories = mem_store.search(namespace)
-    print(f"memories: {memories}")
-
+    # print(f"memories: {memories}")
 
     ls.expect(len(memories)).to_be_greater_than(0)
     mem = memories[0]
@@ -80,12 +78,13 @@ async def test_schedule_memories() -> None:
     if not configurable.mem_assistant_id:
         raise ValueError("Memory assistant ID is not configured")
 
-    
-    output = await memory_client.runs.create(
+    await memory_client.runs.create(
         thread_id=thread_id,
         multitask_strategy="enqueue",
         after_seconds=config["delay_seconds"],
-        assistant_id=config["mem_assistant_id"],  # Make sure this ID exists and is valid
+        assistant_id=config[
+            "mem_assistant_id"
+        ],  # Make sure this ID exists and is valid
         input={"messages": []},
         config={
             "configurable": {
@@ -95,4 +94,4 @@ async def test_schedule_memories() -> None:
         },
     )
 
-    print(f"output: {output}")
+    # print(f"output: {output}")

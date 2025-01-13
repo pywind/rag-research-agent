@@ -1,19 +1,19 @@
 import os
+import uuid
 from contextlib import contextmanager
 from typing import Generator
-import uuid
-from dotenv import load_dotenv
+
 import pytest
+from dotenv import load_dotenv
 from langchain_core.runnables import RunnableConfig
 from langchain_core.vectorstores import VectorStore
+from langchain_redis import RedisConfig, RedisVectorStore
 from langsmith import expect, unit
 
-from index_graph import graph as index_graph
-from retrieval_graph import graph
-from shared.configuration import BaseConfiguration
-from shared.retrieval import make_text_encoder
-from langchain_core.vectorstores import VectorStoreRetriever
-from langchain_redis import RedisConfig, RedisVectorStore
+from src.index_graph import graph as index_graph
+from src.retrieval_graph import graph
+from src.shared.configuration import BaseConfiguration
+from src.shared.retrieval import make_text_encoder
 
 load_dotenv(override=True)
 
@@ -23,7 +23,6 @@ def make_elastic_vectorstore(
     configuration: BaseConfiguration,
 ) -> Generator[VectorStore, None, None]:
     """Configure this agent to connect to a specific elastic index."""
-
 
     embedding_model = make_text_encoder(configuration.embedding_model)
     config = RedisConfig(
@@ -55,7 +54,7 @@ async def test_retrieval_graph() -> None:
     result = await index_graph.ainvoke(
         {"docs": [{"page_content": simple_doc, "id": doc_id}]}, config
     )
-    print(result)
+    # print(result)
     expect(result["docs"]).against(lambda x: not x)  # we delete after the end
     # test general query
     res = await graph.ainvoke(
@@ -63,14 +62,14 @@ async def test_retrieval_graph() -> None:
         config,
     )
     expect(res["router"]["type"]).to_contain("general")
-    print(res)
+    # print(res)
 
     # test query that needs more info
     res = await graph.ainvoke(
         {"messages": [("user", "I am having issues with the tools")]},
         config,
     )
-    print(res)
+    # print(res)
 
     expect(res["router"]["type"]).to_contain("more-info")
 
@@ -79,7 +78,7 @@ async def test_retrieval_graph() -> None:
         {"messages": [("user", "What is a node in LangGraph?")]},
         config,
     )
-    print(res)
+    # print(res)
 
     expect(res["router"]["type"]).to_contain("langchain")
     response = str(res["messages"][-1].content)

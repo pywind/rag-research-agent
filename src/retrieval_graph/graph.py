@@ -6,20 +6,19 @@ and key functions for processing & routing user queries, generating research pla
 conducting research, and formulating responses.
 """
 
-from typing import Any, Literal, cast
 import logging
+from typing import Any, Literal, cast
 
-from langchain_core.messages import BaseMessage
+from langchain_core.messages import BaseMessage, SystemMessage
 from langchain_core.runnables import RunnableConfig
 from langgraph.graph import END, START, StateGraph
-from langgraph_sdk import get_client
 from langgraph.store.base import BaseStore
+from langgraph_sdk import get_client
 
-
-from src.config.model import Plan
+from src.config.model import Plan, Router
 from src.retrieval_graph.configuration import AgentConfiguration
 from src.retrieval_graph.researcher_graph.graph import graph as researcher_graph
-from src.retrieval_graph.state import AgentState, InputState, Router
+from src.retrieval_graph.state import AgentState, InputState
 from src.shared.utils import format_docs, format_memories, load_chat_model
 
 logger = logging.getLogger("retrieval_graph")
@@ -43,7 +42,7 @@ async def analyze_and_route_query(
     configuration = AgentConfiguration.from_runnable_config(config)
     model = load_chat_model(configuration.query_model)
     messages = [
-        {"role": "system", "content": configuration.router_system_prompt}
+        SystemMessage(content=configuration.router_system_prompt)
     ] + state.messages
     response = cast(
         Router, await model.with_structured_output(Router).ainvoke(messages)
@@ -95,7 +94,7 @@ async def ask_for_more_info(
     system_prompt = configuration.more_info_system_prompt.format(
         logic=state.router.logic
     )
-    messages = [{"role": "system", "content": system_prompt}] + state.messages
+    messages = [SystemMessage(content=system_prompt)] + state.messages
     response = await model.ainvoke(messages)
     return {"messages": [response]}
 
@@ -121,8 +120,10 @@ async def respond_to_general_query(
     memories = format_memories(items)
     logger.info(f"Memories: {memories}")
     model = load_chat_model(configuration.query_model)
-    system_prompt = configuration.general_system_prompt.format(logic=state.router.logic, user_info=memories)
-    messages = [{"role": "system", "content": system_prompt}] + state.messages
+    system_prompt = configuration.general_system_prompt.format(
+        logic=state.router.logic, user_info=memories
+    )
+    messages = [SystemMessage(content=system_prompt)] + state.messages
     response = await model.ainvoke(messages)
     return {"messages": [response]}
 
@@ -139,11 +140,10 @@ async def create_research_plan(
     Returns:
         dict[str, list[str]]: A dictionary with a 'steps' key containing the list of research steps.
     """
-
     configuration = AgentConfiguration.from_runnable_config(config)
     model = load_chat_model(configuration.query_model).with_structured_output(Plan)
     messages = [
-        {"role": "system", "content": configuration.research_plan_system_prompt}
+        SystemMessage(content=configuration.research_plan_system_prompt)
     ] + state.messages
     response = cast(Plan, await model.ainvoke(messages))
     return {"steps": response.steps, "documents": "delete"}
@@ -189,7 +189,9 @@ def check_finished(state: AgentState) -> Literal["respond", "conduct_research"]:
 
 
 async def respond(
-    state: AgentState, *, config: RunnableConfig,
+    state: AgentState,
+    *,
+    config: RunnableConfig,
 ) -> dict[str, list[BaseMessage]]:
     """Generate a final response to the user's query based on the conducted research.
 
@@ -243,7 +245,7 @@ async def schedule_memories(state: AgentState, config: RunnableConfig) -> None:
 builder = StateGraph(AgentState, input=InputState, config_schema=AgentConfiguration)
 builder.add_node(analyze_and_route_query)
 builder.add_node(ask_for_more_info)
-builder.add_node(respond_to_general_query)
+builder.add_node(respond_to_general_query) # type: ignore
 builder.add_node(conduct_research)
 builder.add_node(create_research_plan)
 builder.add_node(respond)

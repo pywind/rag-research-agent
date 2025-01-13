@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Annotated, Optional
+from typing import Annotated, Any, Optional
 
 from src.retrieval_graph import prompts
 from src.shared.configuration import BaseConfiguration
@@ -72,7 +72,7 @@ class AgentConfiguration(BaseConfiguration):
     )
     # memory
     delay_seconds: int = 10  # For debouncing memory creation
-    memory_types: Optional[list[dict]] = None
+    memory_types: Optional[list[dict[str, Any]]] = None
     user_id: str = "default-user"
     mem_assistant_id: str = (
         "memory"  # update to the UUID if you configure a custom assistant

@@ -8,23 +8,21 @@ import uuid
 from dataclasses import asdict
 
 from langchain_core.runnables import RunnableConfig
-from langgraph.graph import StateGraph
+from langgraph.graph import START, StateGraph
 from langgraph.store.base import BaseStore
 from langgraph.types import Send
-
-
 from trustcall import create_extractor
-from langgraph.graph import END, START, StateGraph
-from src.shared.utils import load_chat_model
+
 from src.memory import configuration, utils
 from src.memory.state import ProcessorState, State
+from src.shared.utils import load_chat_model
 
 logger = logging.getLogger("memory")
 
 
 async def handle_patch_memory(
     state: ProcessorState, config: RunnableConfig, *, store: BaseStore
-):
+) -> None:
     """Extract the user's state from the conversation and update the memory."""
     # Get the overall configuration
     configurable = configuration.Configuration.from_runnable_config(config)
@@ -66,7 +64,7 @@ async def handle_patch_memory(
     # Pass messages and existing patch to the extractor
     inputs = {"messages": prepared_messages, "existing": existing}
     # Update the patch memory
-    result = await extractor.ainvoke(input=inputs, config=config)
+    result = await extractor.ainvoke(input=inputs, config=config) # type: ignore
     extracted = result["responses"][0].model_dump(mode="json")
     # Save to storage
     await store.aput(namespace, state.function_name, extracted)
@@ -74,7 +72,7 @@ async def handle_patch_memory(
 
 async def handle_insertion_memory(
     state: ProcessorState, config: RunnableConfig, *, store: BaseStore
-):
+) -> None:
     """Handle insertion memory events."""
     # Get the overall configuration
     configurable = configuration.Configuration.from_runnable_config(config)
@@ -143,7 +141,6 @@ async def handle_insertion_memory(
     )
 
 
-
 def scatter_schemas(state: State, config: RunnableConfig) -> list[Send]:
     """Iterate over all memory types in the configuration.
 
@@ -182,16 +179,15 @@ def scatter_schemas(state: State, config: RunnableConfig) -> list[Send]:
     return sends
 
 
-
 # Create the graph and all nodes
 builder = StateGraph(State, config_schema=configuration.Configuration)
-builder.add_node(handle_patch_memory, input=ProcessorState)
-builder.add_node(handle_insertion_memory, input=ProcessorState)
+builder.add_node(handle_patch_memory, input=ProcessorState) # type: ignore
+builder.add_node(handle_insertion_memory, input=ProcessorState) # type: ignore
 
 
 # Add conditional edges to the graph
 builder.add_conditional_edges(
-    START, scatter_schemas, ["handle_patch_memory", "handle_insertion_memory"]
+    START, scatter_schemas, ["handle_patch_memory", "handle_insertion_memory"] # type: ignore
 )
 
 # Compile the graph
