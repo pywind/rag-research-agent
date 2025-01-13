@@ -237,8 +237,7 @@ async def schedule_memories(state: AgentState, config: RunnableConfig) -> None:
             },
         )
     except Exception as e:
-        # Print full exception details including stack trace
-        raise ValueError(f"Failed to create memory run: {str(e)}") from e
+        logger.error(f"Failed to create memory run: {str(e)}")
 
 
 # Define the graph

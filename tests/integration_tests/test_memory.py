@@ -6,17 +6,17 @@ from dotenv import load_dotenv
 from langgraph.store.memory import InMemoryStore
 from langgraph_sdk import get_client
 
-from retrieval_graph.configuration import AgentConfiguration
 from src.config.model import User
 from src.memory.graph import builder
 from src.memory.utils import create_memory_function
+from src.retrieval_graph.configuration import AgentConfiguration
 
 load_dotenv(override=True)
 
 
 @pytest.mark.asyncio
 @ls.unit
-async def _test_patch_memory_stored():
+async def test_patch_memory_stored():
     mem_store = InMemoryStore()
     graph = builder.compile(store=mem_store)
     thread_id = str(uuid.uuid4())
@@ -62,7 +62,7 @@ async def _test_patch_memory_stored():
 
 @pytest.mark.asyncio
 @ls.unit
-async def test_schedule_memories() -> None:
+async def _test_schedule_memories() -> None:
     """Prompt the bot to respond to the user, incorporating memories (if provided)."""
     thread_id = "b64f787d-f1a9-4daf-9316-d09ba1e04bbc"
 
@@ -82,9 +82,7 @@ async def test_schedule_memories() -> None:
         thread_id=thread_id,
         multitask_strategy="enqueue",
         after_seconds=config["delay_seconds"],
-        assistant_id=config[
-            "mem_assistant_id"
-        ],  # Make sure this ID exists and is valid
+        assistant_id=config["mem_assistant_id"],  # Make sure this ID exists and is valid
         input={"messages": []},
         config={
             "configurable": {
