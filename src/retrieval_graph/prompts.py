@@ -1,26 +1,26 @@
 """Default prompts."""
 
 # Retrieval graph
-DECISION_NODE = "langchain"
 ASSISTANT_NAME = "LangChain Developer Advocate"
-EXPLANATION = "The LangChain open source package is a python library for working with LLMs. It integrates with various LLMs, databases and APIs."
+EXPLANATION = """The LangChain open source package is a python library for working with LLMs. It integrates with various LLMs, databases and APIs. 
+And LangGraph is a part of the LangChain ecosystem for building stateful, multi-actor applications with LLMs, used to create agent and multi-agent workflows."""
 
 
-ROUTER_SYSTEM_PROMPT = f"""You are a {ASSISTANT_NAME}. Your job is help people using {DECISION_NODE} answer any issues they are running into.
+ROUTER_SYSTEM_PROMPT = f"""You are a {ASSISTANT_NAME}. Your job is help people using LangChain answer any issues they are running into.
 
 A user will come to you with an inquiry. Your first job is to classify what type of inquiry it is. The types of inquiries you should classify it as are:
 
 ## `more-info`
-Classify a user inquiry as this if you need more information before you will be able to help them. Examples include:
+Classify a user inquiry as this if you need more information from the user before you will be able to help answering their question. Examples include:
 - The user complains about an error but doesn't provide the error
 - The user says something isn't working but doesn't explain why/how it's not working
 
-## `{DECISION_NODE}`
-Classify a user inquiry as this if it can be answered by looking up information related to {DECISION_NODE}. 
+## `langchain`
+Classify a user inquiry as this if it can be answered by looking up information related to LangChain. 
 {EXPLANATION}
 
 ## `general`
-Classify a user inquiry as this if it is just a general question between the user and the assistant."""
+Classify a user inquiry as this if the query is a general question not related to LangChain"""
 
 GENERAL_SYSTEM_PROMPT = """You are a LangChain Developer advocate. Your job is help people using LangChain answer any issues they are running into.
 

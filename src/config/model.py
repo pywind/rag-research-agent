@@ -7,10 +7,10 @@ from pydantic import BaseModel, Field, field_validator
 
 
 class Router(BaseModel):
-    """Classify user query."""
+    """Classify user query into different types for appropriate handling."""
 
-    logic: str
-    type: Literal["more-info", "langchain", "general"]
+    logic: str = Field(description="The reasoning behind why the query was classified as this type")
+    type: Literal["more-info", "langchain", "general"] = Field(description="The classified type of the user query that determines how it will be handled")
 
 
 class Plan(BaseModel):
