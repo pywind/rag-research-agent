@@ -19,23 +19,8 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        python-version: ["3.11", "3.12"]
+        python-version: ["3.11"]
     runs-on: ${{ matrix.os }}
-    services:
-      elasticsearch:
-        image: elasticsearch:8.13.0
-        env:
-          discovery.type: single-node
-          xpack.license.self_generated.type: trial
-          xpack.security.enabled: false # disable password and TLS; never do this in production!
-        ports:
-          - 9200:9200
-        options: >-
-          --health-cmd "curl --fail http://localhost:9200/_cluster/health"
-          --health-start-period 10s
-          --health-timeout 3s
-          --health-interval 3s
-          --health-retries 10
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
@@ -52,10 +37,19 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          ELASTICSEARCH_URL: http://localhost:9200
-          ELASTICSEARCH_USER: elastic
-          ELASTICSEARCH_PASSWORD: ""
+          DB_ENDPOINT: ${{ secrets.DB_ENDPOINT }}
+          DB_NAME_DEV: ${{ secrets.DB_NAME_DEV }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_USER_NAME: ${{ secrets.DB_USER_NAME }}
+          LANGCHAIN_API_KEY: ${{ secrets.LANGCHAIN_API_KEY }}
+          LANGCHAIN_TRACING_V2: true
+          LANGSMITH_PROJECT: ${{ secrets.LANGSMITH_PROJECT }}
+          REDIS_INDEX_NAME: ${{ secrets.REDIS_INDEX_NAME }}
+          REDIS_URL: ${{ secrets.REDIS_URL }}
+          SECURITY_SECRET: ${{ secrets.SECURITY_SECRET }}
           LANGSMITH_API_KEY: ${{ secrets.LANGSMITH_API_KEY }}
           LANGSMITH_TRACING: true
+          TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
         run: |
           uv run pytest tests/integration_tests
